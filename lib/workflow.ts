@@ -13,11 +13,12 @@ const qstashClient = new QStashClient({ token: config.env.upstash.qstashToken })
 export const sendEmail = async ({ email, subject, message }: { email: string, subject: string, message: string; }) => {
 
   await qstashClient.publishJSON({
-    url: `${config.env.prodApiEndpoint}/api/send-email?from=${"ebwood <contact@ebwood.shop>"}&to=${email}&subject=${subject}&message=${message}`,
-    // api: {
-    //   name: "email",
-    //   provider: resend({ token: config.env.resend.token }),
-    // },
+    //! 下面的代码使用react-email来发送好看的邮件，但是无效
+    // url: `${config.env.prodApiEndpoint}/api/send-email?from=${"ebwood <contact@ebwood.shop>"}&to=${email}&subject=${subject}&message=${message}`,
+    api: {
+      name: "email",
+      provider: resend({ token: config.env.resend.token }),
+    },
     body: {
       from: "ebwood <contact@ebwood.shop>",
       to: [email],
