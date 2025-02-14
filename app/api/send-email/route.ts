@@ -1,4 +1,4 @@
-"user server";
+"use server";
 
 import { Resend } from "resend";
 import Email from "@/components/Email";
