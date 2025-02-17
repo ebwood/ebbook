@@ -1,9 +1,32 @@
 import React from "react";
 import Image from "next/image";
-import { Button } from "./ui/button";
 import BookCover from "./BookCover";
+import BorrowBook from "./BorrowBook";
+import { db } from "@/database/drizzle";
+import { users } from "@/database/schema";
+import { eq } from "drizzle-orm";
 
-const BookOverview = (book: Book) => {
+interface Props extends Book {
+  userId?: string;
+}
+const BookOverview = async (book: Props) => {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, book.userId!))
+    .limit(1);
+  if (!user) {
+    return null;
+  }
+
+  const borrowingEligibility = {
+    isEligible: book.availableCopies > 0 && user.status === "APPROVED",
+    message:
+      book.availableCopies <= 0
+        ? "Book is not available"
+        : "User is not approved",
+  };
+
   return (
     <section className="book-overview">
       <div className="flex flex-1 flex-col gap-5">
@@ -36,10 +59,11 @@ const BookOverview = (book: Book) => {
 
         <p className="book-description">{book.description}</p>
 
-        <Button className="book-overview_btn">
-          <Image src="/icons/book.svg" alt="book" width={20} height={20} />
-          <p className="font-bebas-neue text-xl text-dark-200">Borrow Book Request</p>
-        </Button>
+        <BorrowBook
+          bookId={book.id}
+          userId={book.userId!}
+          borrowingEligibility={borrowingEligibility}
+        />
       </div>
 
       <div className="relative flex flex-1 justify-center">
